@@ -1,0 +1,1 @@
+# avito-tech-backend-autumn-2025
