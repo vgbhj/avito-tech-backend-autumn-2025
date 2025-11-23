@@ -148,6 +148,65 @@ migrate -path ./migrations -database "postgres://postgres:postgres@localhost:543
 migrate -path ./migrations -database "postgres://postgres:postgres@localhost:5432/pr_reviewer_db?sslmode=disable" down
 ```
 
+## Тестирование
+
+Проект включает интеграционные тесты для всех API endpoints.
+
+### Требования для тестов
+
+- PostgreSQL должен быть доступен (локально или через Docker)
+- Переменные окружения для тестовой БД (опционально):
+  ```bash
+  export TEST_DB_HOST=localhost
+  export TEST_DB_PORT=5432
+  export TEST_DB_USER=postgres
+  export TEST_DB_PASSWORD=postgres
+  export TEST_DB_NAME=pr_reviewer_test
+  ```
+
+### Запуск тестов
+
+```bash
+# Запуск всех тестов
+make test
+
+# Запуск только интеграционных тестов
+make test-integration
+
+# Запуск тестов с покрытием
+make test-coverage
+
+# Или напрямую через go test
+go test ./test/integration/... -v
+```
+
+### Что тестируется
+
+Интеграционные тесты покрывают:
+
+- **Teams API:**
+  - Создание команды
+  - Получение команды
+  - Обработка дубликатов
+  - Обработка несуществующих команд
+
+- **Users API:**
+  - Установка активности пользователя
+  - Получение PR пользователя
+
+- **Pull Requests API:**
+  - Создание PR с автоматическим назначением ревьюеров
+  - Проверка, что автор не назначается ревьюером
+  - Проверка ограничения до 2 ревьюеров
+  - Merge PR (идемпотентность)
+  - Переназначение ревьюеров
+  - Запрет переназначения после merge
+
+- **Health Check:**
+  - Проверка работоспособности сервиса
+
+Тесты используют изолированную тестовую БД, которая создается и удаляется автоматически для каждого теста.
+
 ## Схема базы данных
 
 Основные таблицы:
