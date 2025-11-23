@@ -36,6 +36,12 @@ func (uc *CreateTeamUseCase) Execute(req CreateTeamRequest) (*domain.Team, error
 	if exists {
 		return nil, domain.ErrTeamExists
 	}
+
+	team := domain.NewTeam(req.TeamName, nil)
+	if err := uc.teamRepo.Create(team); err != nil {
+		return nil, err
+	}
+
 	users := make([]*domain.User, 0, len(req.Members))
 	for _, memberReq := range req.Members {
 		userExists, err := uc.userRepo.Exists(memberReq.UserID)
@@ -63,10 +69,7 @@ func (uc *CreateTeamUseCase) Execute(req CreateTeamRequest) (*domain.Team, error
 
 		users = append(users, user)
 	}
-	team := domain.NewTeam(req.TeamName, users)
-	if err := uc.teamRepo.Create(team); err != nil {
-		return nil, err
-	}
 
+	team.Members = users
 	return team, nil
 }

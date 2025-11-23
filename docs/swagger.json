@@ -1,19 +1,8 @@
 {
-    "schemes": [
-        "http"
-    ],
     "swagger": "2.0",
     "info": {
-        "description": "Сервис для автоматического назначения ревьюеров на Pull Request'ы\nТестовое задание для стажёра Backend (осенняя волна 2025)",
-        "title": "PR Reviewer Assignment Service API",
-        "contact": {
-            "name": "API Support",
-            "url": "https://github.com/avito-tech-backend-autumn-2025"
-        },
-        "version": "1.0"
+        "contact": {}
     },
-    "host": "localhost:8080",
-    "basePath": "/",
     "paths": {
         "/health": {
             "get": {

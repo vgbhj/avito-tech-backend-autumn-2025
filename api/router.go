@@ -1,11 +1,10 @@
 package api
 
 import (
+	_ "github.com/avito-tech-backend-autumn-2025/docs"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-
-	_ "github.com/vgbhj/avito-tech-backend-autumn-2025/docs"
 
 	"github.com/avito-tech-backend-autumn-2025/internal/delivery/http/handlers"
 )
