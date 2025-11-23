@@ -7,7 +7,7 @@ type PRRepository interface {
 
 	Update(pr *domain.PullRequest) error
 
-	GetById(prID string) (*domain.PullRequest, error)
+	GetByID(prID string) (*domain.PullRequest, error)
 
 	GetByReviewerID(reviewerID string) ([]*domain.PullRequest, error)
 

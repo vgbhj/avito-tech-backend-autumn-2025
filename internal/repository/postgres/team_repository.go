@@ -7,12 +7,10 @@ import (
 	"github.com/avito-tech-backend-autumn-2025/internal/repository/interfaces"
 )
 
-// teamRepository реализует TeamRepository для PostgreSQL
 type teamRepository struct {
 	db *sql.DB
 }
 
-// NewTeamRepository создает новый teamRepository
 func NewTeamRepository(db *sql.DB) interfaces.TeamRepository {
 	return &teamRepository{db: db}
 }
@@ -31,6 +29,7 @@ func (r *teamRepository) Create(team *domain.Team) error {
 }
 
 func (r *teamRepository) GetByName(teamName string) (*domain.Team, error) {
+	// Получаем команду
 	var team domain.Team
 	query := `SELECT team_name FROM teams WHERE team_name = $1`
 	err := r.db.QueryRow(query, teamName).Scan(&team.TeamName)
@@ -40,10 +39,12 @@ func (r *teamRepository) GetByName(teamName string) (*domain.Team, error) {
 		}
 		return nil, err
 	}
+
 	members, err := r.getTeamMembers(teamName)
 	if err != nil {
 		return nil, err
 	}
+
 	team.Members = members
 	return &team, nil
 }
