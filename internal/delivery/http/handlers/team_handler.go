@@ -24,6 +24,16 @@ func NewTeamHandler(
 	}
 }
 
+// CreateTeam godoc
+// @Summary      Создать команду с участниками
+// @Description  Создаёт команду с участниками (создаёт/обновляет пользователей)
+// @Tags         Teams
+// @Accept       json
+// @Produce      json
+// @Param        team  body      dto.CreateTeamRequest  true  "Данные команды"
+// @Success      201   {object}  dto.TeamResponse
+// @Failure      400   {object}  dto.ErrorResponse
+// @Router       /team/add [post]
 func (h *TeamHandler) CreateTeam(c *gin.Context) {
 	var req dto.CreateTeamRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -45,6 +55,16 @@ func (h *TeamHandler) CreateTeam(c *gin.Context) {
 	respondJSON(c, http.StatusCreated, response)
 }
 
+// GetTeam godoc
+// @Summary      Получить команду с участниками
+// @Description  Получает команду с участниками по имени
+// @Tags         Teams
+// @Accept       json
+// @Produce      json
+// @Param        team_name  query     string  true  "Уникальное имя команды"
+// @Success      200        {object}  dto.TeamDTO
+// @Failure      404        {object}  dto.ErrorResponse
+// @Router       /team/get [get]
 func (h *TeamHandler) GetTeam(c *gin.Context) {
 	teamName := c.Query("team_name")
 	if teamName == "" {

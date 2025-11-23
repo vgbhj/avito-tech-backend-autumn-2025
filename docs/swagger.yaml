@@ -1,0 +1,359 @@
+basePath: /
+definitions:
+  dto.CreatePRRequest:
+    properties:
+      author_id:
+        type: string
+      pull_request_id:
+        type: string
+      pull_request_name:
+        type: string
+    type: object
+  dto.CreateTeamRequest:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/dto.TeamMemberDTO'
+        type: array
+      team_name:
+        type: string
+    type: object
+  dto.ErrorDetail:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  dto.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/dto.ErrorDetail'
+    type: object
+  dto.GetReviewsResponse:
+    properties:
+      pull_requests:
+        items:
+          $ref: '#/definitions/dto.PullRequestShortDTO'
+        type: array
+      user_id:
+        type: string
+    type: object
+  dto.MergePRRequest:
+    properties:
+      pull_request_id:
+        type: string
+    type: object
+  dto.PRResponse:
+    properties:
+      pr:
+        $ref: '#/definitions/dto.PullRequestDTO'
+    type: object
+  dto.PullRequestDTO:
+    properties:
+      assigned_reviewers:
+        items:
+          type: string
+        type: array
+      author_id:
+        type: string
+      createdAt:
+        type: string
+      mergedAt:
+        type: string
+      pull_request_id:
+        type: string
+      pull_request_name:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.PullRequestShortDTO:
+    properties:
+      author_id:
+        type: string
+      pull_request_id:
+        type: string
+      pull_request_name:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.ReassignReviewerRequest:
+    properties:
+      old_user_id:
+        type: string
+      pull_request_id:
+        type: string
+    type: object
+  dto.ReassignReviewerResponse:
+    properties:
+      pr:
+        $ref: '#/definitions/dto.PullRequestDTO'
+      replaced_by:
+        type: string
+    type: object
+  dto.SetActiveRequest:
+    properties:
+      is_active:
+        type: boolean
+      user_id:
+        type: string
+    type: object
+  dto.TeamDTO:
+    properties:
+      members:
+        items:
+          $ref: '#/definitions/dto.TeamMemberDTO'
+        type: array
+      team_name:
+        type: string
+    type: object
+  dto.TeamMemberDTO:
+    properties:
+      is_active:
+        type: boolean
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.TeamResponse:
+    properties:
+      team:
+        $ref: '#/definitions/dto.TeamDTO'
+    type: object
+  dto.UserDTO:
+    properties:
+      is_active:
+        type: boolean
+      team_name:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.UserResponse:
+    properties:
+      user:
+        $ref: '#/definitions/dto.UserDTO'
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: API Support
+    url: https://github.com/avito-tech-backend-autumn-2025
+  description: |-
+    Сервис для автоматического назначения ревьюеров на Pull Request'ы
+    Тестовое задание для стажёра Backend (осенняя волна 2025)
+  title: PR Reviewer Assignment Service API
+  version: "1.0"
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Проверка работоспособности сервиса
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Health check
+      tags:
+      - Health
+  /pullRequest/create:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт PR и автоматически назначает до 2 ревьюеров из команды
+        автора
+      parameters:
+      - description: Данные PR
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePRRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.PRResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Создать PR и назначить ревьюеров
+      tags:
+      - PullRequests
+  /pullRequest/merge:
+    post:
+      consumes:
+      - application/json
+      description: Помечает PR как MERGED (идемпотентная операция)
+      parameters:
+      - description: ID PR
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MergePRRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PRResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Пометить PR как MERGED
+      tags:
+      - PullRequests
+  /pullRequest/reassign:
+    post:
+      consumes:
+      - application/json
+      description: Переназначает конкретного ревьювера на другого из его команды
+      parameters:
+      - description: Данные переназначения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ReassignReviewerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ReassignReviewerResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Переназначить ревьюера
+      tags:
+      - PullRequests
+  /team/add:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт команду с участниками (создаёт/обновляет пользователей)
+      parameters:
+      - description: Данные команды
+        in: body
+        name: team
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTeamRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.TeamResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Создать команду с участниками
+      tags:
+      - Teams
+  /team/get:
+    get:
+      consumes:
+      - application/json
+      description: Получает команду с участниками по имени
+      parameters:
+      - description: Уникальное имя команды
+        in: query
+        name: team_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TeamDTO'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Получить команду с участниками
+      tags:
+      - Teams
+  /users/getReview:
+    get:
+      consumes:
+      - application/json
+      description: Получает PR'ы, где пользователь назначен ревьюером
+      parameters:
+      - description: Идентификатор пользователя
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetReviewsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Получить PR'ы пользователя
+      tags:
+      - Users
+  /users/setIsActive:
+    post:
+      consumes:
+      - application/json
+      description: Устанавливает флаг активности пользователя
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SetActiveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Установить флаг активности пользователя
+      tags:
+      - Users
+schemes:
+- http
+swagger: "2.0"

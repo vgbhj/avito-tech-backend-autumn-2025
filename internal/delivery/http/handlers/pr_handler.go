@@ -27,6 +27,17 @@ func NewPRHandler(
 	}
 }
 
+// CreatePR godoc
+// @Summary      Создать PR и назначить ревьюеров
+// @Description  Создаёт PR и автоматически назначает до 2 ревьюеров из команды автора
+// @Tags         PullRequests
+// @Accept       json
+// @Produce      json
+// @Param        request  body      dto.CreatePRRequest  true  "Данные PR"
+// @Success      201      {object}  dto.PRResponse
+// @Failure      404      {object}  dto.ErrorResponse
+// @Failure      409      {object}  dto.ErrorResponse
+// @Router       /pullRequest/create [post]
 func (h *PRHandler) CreatePR(c *gin.Context) {
 	var req dto.CreatePRRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -53,6 +64,16 @@ func (h *PRHandler) CreatePR(c *gin.Context) {
 	respondJSON(c, http.StatusCreated, response)
 }
 
+// MergePR godoc
+// @Summary      Пометить PR как MERGED
+// @Description  Помечает PR как MERGED (идемпотентная операция)
+// @Tags         PullRequests
+// @Accept       json
+// @Produce      json
+// @Param        request  body      dto.MergePRRequest  true  "ID PR"
+// @Success      200      {object}  dto.PRResponse
+// @Failure      404      {object}  dto.ErrorResponse
+// @Router       /pullRequest/merge [post]
 func (h *PRHandler) MergePR(c *gin.Context) {
 	var req dto.MergePRRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -77,6 +98,17 @@ func (h *PRHandler) MergePR(c *gin.Context) {
 	respondJSON(c, http.StatusOK, response)
 }
 
+// ReassignReviewer godoc
+// @Summary      Переназначить ревьюера
+// @Description  Переназначает конкретного ревьювера на другого из его команды
+// @Tags         PullRequests
+// @Accept       json
+// @Produce      json
+// @Param        request  body      dto.ReassignReviewerRequest  true  "Данные переназначения"
+// @Success      200      {object}  dto.ReassignReviewerResponse
+// @Failure      404      {object}  dto.ErrorResponse
+// @Failure      409      {object}  dto.ErrorResponse
+// @Router       /pullRequest/reassign [post]
 func (h *PRHandler) ReassignReviewer(c *gin.Context) {
 	var req dto.ReassignReviewerRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

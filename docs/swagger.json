@@ -1,0 +1,549 @@
+{
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "Сервис для автоматического назначения ревьюеров на Pull Request'ы\nТестовое задание для стажёра Backend (осенняя волна 2025)",
+        "title": "PR Reviewer Assignment Service API",
+        "contact": {
+            "name": "API Support",
+            "url": "https://github.com/avito-tech-backend-autumn-2025"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/health": {
+            "get": {
+                "description": "Проверка работоспособности сервиса",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/pullRequest/create": {
+            "post": {
+                "description": "Создаёт PR и автоматически назначает до 2 ревьюеров из команды автора",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PullRequests"
+                ],
+                "summary": "Создать PR и назначить ревьюеров",
+                "parameters": [
+                    {
+                        "description": "Данные PR",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePRRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PRResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/pullRequest/merge": {
+            "post": {
+                "description": "Помечает PR как MERGED (идемпотентная операция)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PullRequests"
+                ],
+                "summary": "Пометить PR как MERGED",
+                "parameters": [
+                    {
+                        "description": "ID PR",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.MergePRRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.PRResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/pullRequest/reassign": {
+            "post": {
+                "description": "Переназначает конкретного ревьювера на другого из его команды",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PullRequests"
+                ],
+                "summary": "Переназначить ревьюера",
+                "parameters": [
+                    {
+                        "description": "Данные переназначения",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ReassignReviewerRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ReassignReviewerResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/team/add": {
+            "post": {
+                "description": "Создаёт команду с участниками (создаёт/обновляет пользователей)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Teams"
+                ],
+                "summary": "Создать команду с участниками",
+                "parameters": [
+                    {
+                        "description": "Данные команды",
+                        "name": "team",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateTeamRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TeamResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/team/get": {
+            "get": {
+                "description": "Получает команду с участниками по имени",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Teams"
+                ],
+                "summary": "Получить команду с участниками",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Уникальное имя команды",
+                        "name": "team_name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TeamDTO"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/getReview": {
+            "get": {
+                "description": "Получает PR'ы, где пользователь назначен ревьюером",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Получить PR'ы пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Идентификатор пользователя",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetReviewsResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/setIsActive": {
+            "post": {
+                "description": "Устанавливает флаг активности пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Установить флаг активности пользователя",
+                "parameters": [
+                    {
+                        "description": "Данные пользователя",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SetActiveRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.CreatePRRequest": {
+            "type": "object",
+            "properties": {
+                "author_id": {
+                    "type": "string"
+                },
+                "pull_request_id": {
+                    "type": "string"
+                },
+                "pull_request_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateTeamRequest": {
+            "type": "object",
+            "properties": {
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.TeamMemberDTO"
+                    }
+                },
+                "team_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ErrorDetail": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/dto.ErrorDetail"
+                }
+            }
+        },
+        "dto.GetReviewsResponse": {
+            "type": "object",
+            "properties": {
+                "pull_requests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PullRequestShortDTO"
+                    }
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.MergePRRequest": {
+            "type": "object",
+            "properties": {
+                "pull_request_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PRResponse": {
+            "type": "object",
+            "properties": {
+                "pr": {
+                    "$ref": "#/definitions/dto.PullRequestDTO"
+                }
+            }
+        },
+        "dto.PullRequestDTO": {
+            "type": "object",
+            "properties": {
+                "assigned_reviewers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "author_id": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "mergedAt": {
+                    "type": "string"
+                },
+                "pull_request_id": {
+                    "type": "string"
+                },
+                "pull_request_name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PullRequestShortDTO": {
+            "type": "object",
+            "properties": {
+                "author_id": {
+                    "type": "string"
+                },
+                "pull_request_id": {
+                    "type": "string"
+                },
+                "pull_request_name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ReassignReviewerRequest": {
+            "type": "object",
+            "properties": {
+                "old_user_id": {
+                    "type": "string"
+                },
+                "pull_request_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ReassignReviewerResponse": {
+            "type": "object",
+            "properties": {
+                "pr": {
+                    "$ref": "#/definitions/dto.PullRequestDTO"
+                },
+                "replaced_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SetActiveRequest": {
+            "type": "object",
+            "properties": {
+                "is_active": {
+                    "type": "boolean"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TeamDTO": {
+            "type": "object",
+            "properties": {
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.TeamMemberDTO"
+                    }
+                },
+                "team_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TeamMemberDTO": {
+            "type": "object",
+            "properties": {
+                "is_active": {
+                    "type": "boolean"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TeamResponse": {
+            "type": "object",
+            "properties": {
+                "team": {
+                    "$ref": "#/definitions/dto.TeamDTO"
+                }
+            }
+        },
+        "dto.UserDTO": {
+            "type": "object",
+            "properties": {
+                "is_active": {
+                    "type": "boolean"
+                },
+                "team_name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserResponse": {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "$ref": "#/definitions/dto.UserDTO"
+                }
+            }
+        }
+    }
+}

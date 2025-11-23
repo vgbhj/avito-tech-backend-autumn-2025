@@ -80,7 +80,6 @@ go mod download
 2. **Создайте файл `.env` из примера:**
 ```bash
 cp .env.example .env
-# Отредактируйте .env при необходимости
 ```
 
 3. **Запустите PostgreSQL (через Docker):**

@@ -12,6 +12,14 @@ func NewHealthHandler() *HealthHandler {
 	return &HealthHandler{}
 }
 
+// Health godoc
+// @Summary      Health check
+// @Description  Проверка работоспособности сервиса
+// @Tags         Health
+// @Accept       json
+// @Produce      text/plain
+// @Success      200  {string}  string  "OK"
+// @Router       /health [get]
 func (h *HealthHandler) Health(c *gin.Context) {
 	c.String(http.StatusOK, "OK")
 }
